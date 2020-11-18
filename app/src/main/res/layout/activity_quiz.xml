@@ -9,8 +9,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 <LinearLayout
     android:layout_marginTop="16dp"
+    android:id="@+id/main_linear_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:visibility="gone"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -18,15 +20,16 @@
         android:layout_weight="8"
         android:layout_height="match_parent">
         <ProgressBar
+                android:id="@+id/progress_bar"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
-                android:progress="50"
+                android:progress="100"
                 android:progressBackgroundTint="#1AFFFFFF"
                 android:progressTint="#f2537f"
                 style="@android:style/Widget.ProgressBar.Horizontal"
                 ></ProgressBar>
         <TextView
-            android:id="@+id/progressBarinsideText"
+            android:id="@+id/progressBarInsideText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"

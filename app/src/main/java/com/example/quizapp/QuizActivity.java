@@ -9,9 +9,12 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.material.card.MaterialCardView;
@@ -26,11 +29,16 @@ import java.util.Objects;
 
 public class QuizActivity extends AppCompatActivity {
     ArrayList<Question> arrayList;
+    ArrayList<MaterialCardView> materialCardViews;
     int currentIndex=0;
-    int selectedOption;
+    int selectedOption=-1;
     TextView questionNumber,question,option1Text,option2Text,option3Text;
     MaterialCardView firstOption,secondOption,thirdOption;
+    ProgressBar progressBar;
+    LinearLayout linearLayout;
     Button nextButton;
+    CountDownTimer countDownTimer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +50,24 @@ public class QuizActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         getQuestions();
+        countDownTimer = new CountDownTimer(30000,1000) {
+            int progress =100;
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onTick(long millisUntilFinished) {
+                progress = progress-3;
+                TextView progressBarText = findViewById(R.id.progressBarInsideText);
+                progressBarText.setText(Integer.toString((int) millisUntilFinished/1000));
+                progressBar.setProgress(progress);
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onFinish() {
+                progress=100;
+                next();
+            }
+        };
     }
 
 
@@ -55,18 +81,66 @@ public class QuizActivity extends AppCompatActivity {
      firstOption = findViewById(R.id.firstOption);
      secondOption = findViewById(R.id.secondOption);
      thirdOption = findViewById(R.id.thirdOption);
+     progressBar = findViewById(R.id.progress_bar);
+     linearLayout = findViewById(R.id.main_linear_layout);
+     materialCardViews= new ArrayList<>();
+     materialCardViews.add(firstOption);
+     materialCardViews.add(secondOption);
+     materialCardViews.add(thirdOption);
     }
 
-    public void updateUI(){
+    public void updateUI(int index){
+      linearLayout.setVisibility(View.VISIBLE);
+      questionNumber.setText("Question "+index+1+"/10");
+      question.setText(arrayList.get(index).getQuestion());
+      option1Text.setText(arrayList.get(index).getOption1());
+      option2Text.setText(arrayList.get(index).getOption2());
+      option3Text.setText(arrayList.get(index).getOption3());
     }
 
     public void startQuiz(){
-
+        progressBar.setProgress(100);
+        countDownTimer.start();
+        updateUI(currentIndex);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void onTapNext(View view){
-
+      countDownTimer.cancel();
+      next();
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void next(){
+            int correctOption = arrayList.get(currentIndex).getCorrectOption();
+            if(selectedOption==correctOption){
+            materialCardViews.get(correctOption).setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#5efc82")));
+            materialCardViews.get(correctOption).setStrokeColor(Color.parseColor("#5efc82"));}
+            else{
+                materialCardViews.get(correctOption).setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#5efc82")));
+                materialCardViews.get(correctOption).setStrokeColor(Color.parseColor("#5efc82"));
+                materialCardViews.get(selectedOption).setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FF0134")));
+                materialCardViews.get(selectedOption).setStrokeColor(Color.parseColor("#FF0134"));
+            }
+            CountDownTimer newCountDownTimer = new CountDownTimer(1000,1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                }
+                @Override
+                public void onFinish() {
+                    firstOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1c223b")));
+                    secondOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1c223b")));
+                    thirdOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1c223b")));
+                    materialCardViews.get(arrayList.get(currentIndex).getCorrectOption()).setStrokeColor(Color.parseColor("#107eeb"));
+                    materialCardViews.get(selectedOption).setStrokeColor(Color.parseColor("#107eeb"));
+                    currentIndex++;
+                    startQuiz();
+                }
+            };
+      newCountDownTimer.start();
+    }
+
+
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void onTapOption(View view){
@@ -111,6 +185,7 @@ public class QuizActivity extends AppCompatActivity {
                    int correctOption = Integer.parseInt(correct);
                    arrayList.add(new Question(question,option1,option2,option3,correctOption));
                }
+               startQuiz();
             }
 
             @Override
