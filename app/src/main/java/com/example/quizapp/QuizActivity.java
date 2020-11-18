@@ -3,8 +3,10 @@ package com.example.quizapp;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.NestedScrollView;
 
 import android.accessibilityservice.AccessibilityButtonController;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.material.card.MaterialCardView;
@@ -30,13 +33,15 @@ import java.util.Objects;
 public class QuizActivity extends AppCompatActivity {
     ArrayList<Question> arrayList;
     ArrayList<MaterialCardView> materialCardViews;
+    ProgressBar circularProgress;
     int currentIndex=0;
     int selectedOption=-1;
     TextView questionNumber,question,option1Text,option2Text,option3Text;
     MaterialCardView firstOption,secondOption,thirdOption;
     ProgressBar progressBar;
-    LinearLayout linearLayout;
+    NestedScrollView scrollView;
     Button nextButton;
+    static int score=0;
     CountDownTimer countDownTimer;
 
     @Override
@@ -82,7 +87,8 @@ public class QuizActivity extends AppCompatActivity {
      secondOption = findViewById(R.id.secondOption);
      thirdOption = findViewById(R.id.thirdOption);
      progressBar = findViewById(R.id.progress_bar);
-     linearLayout = findViewById(R.id.main_linear_layout);
+     circularProgress = findViewById(R.id.progress_circular);
+     scrollView = findViewById(R.id.my_scrollview);
      materialCardViews= new ArrayList<>();
      materialCardViews.add(firstOption);
      materialCardViews.add(secondOption);
@@ -90,8 +96,10 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     public void updateUI(int index){
-      linearLayout.setVisibility(View.VISIBLE);
-      questionNumber.setText("Question "+index+1+"/10");
+      scrollView.setVisibility(View.VISIBLE);
+      circularProgress.setVisibility(View.GONE);
+      int text = index+1;
+      questionNumber.setText("Question "+text+"/10");
       question.setText(arrayList.get(index).getQuestion());
       option1Text.setText(arrayList.get(index).getOption1());
       option2Text.setText(arrayList.get(index).getOption2());
@@ -115,6 +123,7 @@ public class QuizActivity extends AppCompatActivity {
             int correctOption = arrayList.get(currentIndex).getCorrectOption();
             if(selectedOption!=-1){
             if(selectedOption==correctOption){
+                score++;
             materialCardViews.get(correctOption).setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#5efc82")));
             materialCardViews.get(correctOption).setStrokeColor(Color.parseColor("#5efc82"));}
             else{
@@ -132,14 +141,22 @@ public class QuizActivity extends AppCompatActivity {
                 public void onTick(long millisUntilFinished) {
                 }
                 @Override
-                public void onFinish() {
+                public void onFinish() {if(currentIndex<9){
                     firstOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1c223b")));
                     secondOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1c223b")));
                     thirdOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1c223b")));
                     materialCardViews.get(arrayList.get(currentIndex).getCorrectOption()).setStrokeColor(Color.parseColor("#107eeb"));
                     materialCardViews.get(selectedOption).setStrokeColor(Color.parseColor("#107eeb"));
+                    if(currentIndex==8){
+                        nextButton.setText("Finish");
+                    }
                     currentIndex++;
-                    startQuiz();
+                    startQuiz();}
+                    else{
+                    Intent intent = new Intent(getApplicationContext(),ResultActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                }
                 }
             };
       newCountDownTimer.start();
@@ -184,7 +201,7 @@ public class QuizActivity extends AppCompatActivity {
                for(DataSnapshot snapshot1 : snapshot.getChildren()){
                    String question = Objects.requireNonNull(snapshot1.child("question").getValue()).toString();
                    String option1 = Objects.requireNonNull(snapshot1.child("option1").getValue()).toString();
-                   String option2=Objects.requireNonNull(snapshot1.child("option2").getValue()).toString();
+                   String option2 =Objects.requireNonNull(snapshot1.child("option2").getValue()).toString();
                    String option3 = Objects.requireNonNull(snapshot1.child("option3").getValue()).toString();
                    String correct =Objects.requireNonNull(snapshot1.child("correct").getValue()).toString();
                    int correctOption = Integer.parseInt(correct);
