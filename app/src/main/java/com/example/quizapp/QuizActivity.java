@@ -113,6 +113,7 @@ public class QuizActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void next(){
             int correctOption = arrayList.get(currentIndex).getCorrectOption();
+            if(selectedOption!=-1){
             if(selectedOption==correctOption){
             materialCardViews.get(correctOption).setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#5efc82")));
             materialCardViews.get(correctOption).setStrokeColor(Color.parseColor("#5efc82"));}
@@ -121,6 +122,10 @@ public class QuizActivity extends AppCompatActivity {
                 materialCardViews.get(correctOption).setStrokeColor(Color.parseColor("#5efc82"));
                 materialCardViews.get(selectedOption).setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FF0134")));
                 materialCardViews.get(selectedOption).setStrokeColor(Color.parseColor("#FF0134"));
+            }}
+            else{
+                materialCardViews.get(correctOption).setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#5efc82")));
+                materialCardViews.get(correctOption).setStrokeColor(Color.parseColor("#5efc82"));
             }
             CountDownTimer newCountDownTimer = new CountDownTimer(1000,1000) {
                 @Override
