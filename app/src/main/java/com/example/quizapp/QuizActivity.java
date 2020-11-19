@@ -41,6 +41,7 @@ public class QuizActivity extends AppCompatActivity {
     ProgressBar progressBar;
     NestedScrollView scrollView;
     Button nextButton;
+    int progress=100;
     static int score=0;
     CountDownTimer countDownTimer;
 
@@ -56,7 +57,6 @@ public class QuizActivity extends AppCompatActivity {
         super.onStart();
         getQuestions();
         countDownTimer = new CountDownTimer(30000,1000) {
-            int progress =100;
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onTick(long millisUntilFinished) {
@@ -69,7 +69,6 @@ public class QuizActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onFinish() {
-                progress=100;
                 next();
             }
         };
@@ -120,6 +119,7 @@ public class QuizActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void next(){
+            progress=100;
             int correctOption = arrayList.get(currentIndex).getCorrectOption();
             if(selectedOption!=-1){
             if(selectedOption==correctOption){
@@ -141,12 +141,14 @@ public class QuizActivity extends AppCompatActivity {
                 public void onTick(long millisUntilFinished) {
                 }
                 @Override
-                public void onFinish() {if(currentIndex<9){
+                public void onFinish() {
+                    if(currentIndex<9){
                     firstOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1c223b")));
                     secondOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1c223b")));
                     thirdOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1c223b")));
                     materialCardViews.get(arrayList.get(currentIndex).getCorrectOption()).setStrokeColor(Color.parseColor("#107eeb"));
-                    materialCardViews.get(selectedOption).setStrokeColor(Color.parseColor("#107eeb"));
+                    if(selectedOption!=-1){
+                    materialCardViews.get(selectedOption).setStrokeColor(Color.parseColor("#107eeb"));}
                     if(currentIndex==8){
                         nextButton.setText("Finish");
                     }
@@ -207,6 +209,7 @@ public class QuizActivity extends AppCompatActivity {
                    int correctOption = Integer.parseInt(correct);
                    arrayList.add(new Question(question,option1,option2,option3,correctOption));
                }
+               Log.i("size",arrayList.size()+"");
                startQuiz();
             }
 
